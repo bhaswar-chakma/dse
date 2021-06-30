@@ -16,3 +16,4 @@ output:
     theme: flatly
     toc: TRUE
     toc_float: TRUE
+output_dir: docs
