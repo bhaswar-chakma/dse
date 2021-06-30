@@ -1,0 +1,10 @@
+# Welcome!
+
+```{r run-script, echo = FALSE, warning = FALSE, message = FALSE, eval = FALSE}
+source("get-data-for-website.R")
+```
+
+![](images/hidden-gem.png){width=100%}
+
+[Click here to read](https://www.cnbc.com/2021/06/09/hsbc-sees-diversification-opportunity-in-bangladesh-stock-market-.html)
+

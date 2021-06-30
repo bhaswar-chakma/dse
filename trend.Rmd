@@ -1,0 +1,287 @@
+---
+title: "Trends"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message = FALSE, warning = FALSE, fig.width=15, fig.height=12)
+library(tidyverse)
+library(lubridate)
+options(scipen=999)
+```
+
+```{r join-price-sector-pe}
+ds30code <- c("ACMELAB", "BATBC", "BBSCABLES", "BEACONPHAR", "BEXIMCO", "BRACBANK", 
+              "BSCCL", "BSRMLTD", "BXPHARMA", "CITYBANK", "CONFIDCEM", "EBL", 
+              "GP", "IDLC", "IFADAUTOS", "LANKABAFIN", "LHBL", "MPETROLEUM", 
+              "NATLIFEINS", "NBL", "OLYMPIC", "PADMAOIL", "PTL", "PUBALIBANK", 
+              "RENATA", "SINGERBD", "SQURPHARMA", "SUMITPOWER", "TITASGAS", 
+              "UPGDCL")
+df_price <- readRDS("data/DF-HISTORICAL-PRICE.RDS") %>%
+  # Sector
+  inner_join(readRDS("data/sector/DF-SECTOR.RDS")) %>% 
+  # PE
+  left_join(readRDS("data/DF-PE.RDS")) %>% 
+  # DSE30
+  mutate(ds30 = ifelse(code %in% ds30code, TRUE, FALSE)) %>% 
+  select(date, code, sector, ds30, everything()) %>% 
+  arrange(desc(date))
+```
+
+
+```{r reshape-ma}
+df_ma_long <- df_price %>%
+  group_by(code) %>% 
+  arrange(code, date) %>%
+  mutate(t = row_number(), T = n()) %>% 
+  filter(T > 100) %>% 
+  # Moving Average
+  mutate(sma26 = TTR::SMA(price, 26),
+         sma12 = TTR::SMA(price, 12)) %>% 
+  na.omit() %>% 
+  select(date, code, ds30, sector, price, sma12, sma26) %>% 
+  # Reshape 
+  pivot_longer(
+    cols = price:sma26,
+    names_to = "price_type",
+    values_to = "price"
+  ) 
+
+
+```
+**Last Updated: `r today()`**
+
+# Sector 
+
+```{r pe, warning=FALSE, message=FALSE, echo=FALSE}
+df_price %>% 
+  filter(pe <= 15) %>%
+  distinct(code) %>% 
+  pull() -> pe15
+
+```
+
+## Engineering
+```{r eng, warning=FALSE, message=FALSE, echo=FALSE, fig.height=40}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Engineering",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Engineering")
+```
+
+## Pharmaceuticals & Chemicals
+```{r pharma, warning=FALSE, message=FALSE, echo=FALSE, fig.height=40}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Pharmaceuticals & Chemicals",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Pharmaceuticals & Chemicals")
+```
+
+## Insurance
+```{r ins, warning=FALSE, message=FALSE, echo=FALSE, fig.height=40}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Insurance",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Insurance")
+```
+
+## Fuel & Power
+```{r fuel, warning=FALSE, message=FALSE, echo=FALSE,fig.height=30}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Fuel & Power",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Fuel & Power")
+```
+
+## IT
+```{r IT, warning=FALSE, message=FALSE, echo=FALSE,fig.height=25}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "IT",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("IT")
+```
+
+
+## Bank
+```{r Bank, warning=FALSE, message=FALSE, echo=FALSE, fig.height=30}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Bank",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Bank")
+```
+
+## Textile
+```{r Textile, warning=FALSE, message=FALSE, echo=FALSE, fig.height=40}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Textile",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Textile")
+```
+
+## Mutual Funds
+```{r MutualFunds, warning=FALSE, message=FALSE, echo=FALSE, fig.height=40}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Mutual Funds",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Mutual Funds")
+```
+
+## Miscellaneous
+```{r Miscellaneous, warning=FALSE, message=FALSE, echo=FALSE,fig.height=15}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Miscellaneous",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Miscellaneous")
+```
+
+## Tannery Industries
+```{r Tannery, warning=FALSE, message=FALSE, echo=FALSE,fig.height=10}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Tannery Industries",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Tannery Industries")
+```
+
+## Financial Institutions
+```{r Financial, warning=FALSE, message=FALSE, echo=FALSE,fig.height=30}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Financial Institutions",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Financial Institutions")
+```
+
+## Services & Real Estate
+```{r Services, warning=FALSE, message=FALSE, echo=FALSE,fig.height=5}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Services & Real Estate",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Services & Real Estate")
+```
+
+
+## Telecommunication
+```{r Telecommunication, warning=FALSE, message=FALSE, echo=FALSE,fig.height=5}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Telecommunication",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Telecommunication")
+```
+
+## Cement
+```{r Cement, warning=FALSE, message=FALSE, echo=FALSE,fig.height=15}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Cement",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Cement")
+```
+
+
+## Food & Allied
+```{r food, warning=FALSE, message=FALSE, echo=FALSE,fig.height=25}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Food & Allied",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Food & Allied")
+```
+
+## Paper & Printing
+```{r paper, warning=FALSE, message=FALSE, echo=FALSE,fig.height=10}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Paper & Printing",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Paper & Printing")
+```
+
+
+## Jute
+```{r Jute, warning=FALSE, message=FALSE, echo=FALSE,fig.height=5}
+df_ma_long %>% 
+  filter(#code %in% pe15,
+         sector == "Jute",
+         date > today() - 180) %>%
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("Jute")
+```
+
+
+
+
+# DS30 
+
+```{r ds30, warning=FALSE, message=FALSE, echo=FALSE,fig.height=50}
+df_ma_long %>% 
+  filter(ds30 == TRUE,
+         date > today() - 180) %>% 
+  ggplot(aes(x = date, y = price, color = price_type)) +
+  geom_line(size = 1) +
+  facet_wrap(~ code, ncol = 2, scale = "free") +
+  ggtitle("DS30")
+```
+
