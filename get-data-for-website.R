@@ -26,7 +26,7 @@ list_extracted_dsex <- dsex_price_all[dfcols_dsex == 12] # Extract the list with
 df_price_dsex <- list_extracted_dsex[[1]] %>% as_tibble()
 
 df_price_latest <- df_price_dsex %>% 
-  mutate_at(c(4:10,12), parse_number) %>% # Modify the code***
+  mutate_at(c(4:12), parse_number) %>% # Modify the code***
   rename(date = "DATE",
          code = "TRADING CODE",
          price = `CLOSEP*`,
@@ -43,7 +43,7 @@ df_price_latest <- df_price_dsex %>%
   select(-1)
 # Save RDS: Binded Historical Prices
 df_historical_prices <- bind_rows(df_price_historical, df_price_latest)
-  saveRDS(df_historical_prices, "data/DF-HISTORICAL-PRICE.RDS")
+saveRDS(df_historical_prices, "data/DF-HISTORICAL-PRICE.RDS")
 
 # PE ----------------------------------------------------------------------
 dsex_pe_url <- "https://dsebd.org/latest_PE.php"
