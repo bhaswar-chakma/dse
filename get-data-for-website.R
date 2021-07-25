@@ -25,8 +25,14 @@ list_extracted_dsex <- dsex_price_all[dfcols_dsex == 12] # Extract the list with
 
 df_price_dsex <- list_extracted_dsex[[1]] %>% as_tibble()
 
-df_price_latest <- df_price_dsex %>% 
-  mutate_at(c(4:12), parse_number) %>% # Modify the code***
+df_price_latest <- df_price_dsex %>%
+  # Except the first 3 columns:
+  # data types keep changing
+  # parse number if character
+  mutate(
+    across(where(is.character) & !c(1:3),
+           parse_number)
+  ) %>% 
   rename(date = "DATE",
          code = "TRADING CODE",
          price = `CLOSEP*`,
@@ -71,7 +77,7 @@ df_pe %>%
 # Block Trade -------------------------------------------------------------
 
 mst <- readr::read_csv("https://www.dsebd.org/mst.txt", 
-                       skip = 89) %>% 
+                       skip = 91) %>%  #*** previously was 89
   slice(1:(nrow(.)-3))
 
 # Clean
