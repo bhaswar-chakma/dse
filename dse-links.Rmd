@@ -1,7 +1,0 @@
-## DSE Website Links
-
-[Homepage](https://www.dsebd.org/)
-
-[Live Market Price](https://www.dsebd.org/mkt_depth_3.php)
-
-[News](https://www.dsebd.org/news_archive.php)

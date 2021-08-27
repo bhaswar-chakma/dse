@@ -1,0 +1,88 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+```
+
+# PE by Sector
+```{r custom-funct-pe-plot}
+# Custom function for PE plot
+df_pe <- readRDS("data/DF-PE.RDS")
+pe_plot <- function(sector_name){
+  plot <- readRDS("data/DF-PE.RDS") %>%
+    filter(sector == sector_name) %>% 
+    arrange(pe) %>% 
+    ggplot(aes(x = reorder(code, desc(pe)), y = pe)) + # , label = pe
+    geom_col(fill = "darkorange" ) +
+    coord_flip() +
+    #geom_text(size=2, color = "blue") + # if you use label = pe
+    labs(title = "", x = "", y = "PE") + # title = sector_name
+    ggthemes::theme_economist() +
+    theme(axis.text = element_text(size = 8),
+          plot.title = element_text(hjust = 0.5))
+  plot
+}
+```
+
+## Bank
+
+```{r Bank}
+plotly::ggplotly(pe_plot("Bank"))
+```
+
+## Pharmaceuticals & Chemicals
+
+```{r pharma}
+plotly::ggplotly(pe_plot("Pharmaceuticals & Chemicals"))
+```
+
+## Engineering
+
+```{r Engineering}
+plotly::ggplotly(pe_plot("Engineering"))
+```
+
+## Fuel & Power
+
+```{r Fuel & Power}
+plotly::ggplotly(pe_plot("Fuel & Power"))
+```
+
+## Financial Institutions
+
+```{r Financial Institutions}
+plotly::ggplotly(pe_plot("Financial Institutions"))
+```
+
+## Textile
+
+```{r Textile}
+plotly::ggplotly(pe_plot("Textile"))
+```
+
+## Cement
+```{r Cement}
+plotly::ggplotly(pe_plot("Cement"))
+```
+
+## IT
+
+```{r IT}
+plotly::ggplotly(pe_plot("IT"))
+```
+
+## Miscellaneous
+
+```{r Miscellaneous}
+plotly::ggplotly(pe_plot("Miscellaneous"))
+```
+
+## Services-Real-Estate
+```{r Services-Real-Estate}
+plotly::ggplotly(pe_plot("Services & Real Estate"))
+```
+
+## Mutual-Funds
+```{r Mutual-Funds}
+plotly::ggplotly(pe_plot("Mutual Funds"))
+```
+

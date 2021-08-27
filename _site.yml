@@ -1,15 +1,14 @@
-name: "Dhaka Stock Exchange"
+name: "DSE"
 navbar:
-  title: "Dhaka Stock Exchange"
+  title: "DSE"
   left:
-    - text: "Home"
-      href: index.html
     - text: "Market"
-      href: market.html
+      href: index.html
+    - text: "PE"
+      href: pe.html
     - text: "Trend"
       href: trend.html
-    - text: "DSE Official Website"
-      href: dse-links.html
+
 
 output:
   html_document:

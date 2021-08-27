@@ -1,10 +1,128 @@
-# Welcome!
+---
+title: Latest Market Information
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10)
+```
 
-```{r run-script, echo = FALSE, warning = FALSE, message = FALSE}
+```{r run-script, eval = FALSE}
 source("get-data-for-website.R")
 ```
 
-> "Bangladesh stocks hold ‘hidden gems’ for investors, HSBC says"
+```{r, include = FALSE}
+library(tidyverse)
+library(lubridate)
+date_market <- readRDS("data/DF-HISTORICAL-PRICE.RDS") %>% 
+  arrange(desc(date)) %>%
+  slice(1) %>% 
+  pull(date)
+```
 
-[Click here to read](https://www.cnbc.com/2021/06/09/hsbc-sees-diversification-opportunity-in-bangladesh-stock-market-.html)
+**Latest Market Date:** `r format(lubridate::ymd(date_market), '%d %B %Y')`
 
+**Updated:** `r format(Sys.time(), '%d %B %Y')`
+
+
+# Gainers 
+
+```{r}
+plot_gainers <- readRDS("data/DF-GAINERS-LOSERS.RDS") %>%
+  # gainer id == 1
+  filter(id ==1) %>% 
+  ggplot(aes(x = reorder(code, `% CHANGE`),
+             y = `% CHANGE`,
+             fill = sector )) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "", fill = "Sector") +
+  theme_minimal()
+
+plotly::ggplotly(plot_gainers)
+```
+
+# Losers 
+
+```{r fig-loser}
+plot_losers <- readRDS("data/DF-GAINERS-LOSERS.RDS") %>%
+  # loser id == 2
+  filter(id ==2) %>% 
+  ggplot(aes(x = reorder(code, `% CHANGE`),
+             y = `% CHANGE`,
+             fill = sector )) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "", fill = "Sector") +
+  theme_minimal()
+plotly::ggplotly(plot_losers)
+```
+
+# Indices
+
+```{r}
+df_marekt_info <- readRDS("data/df_marekt_info.RDS")
+```
+
+
+```{r, fig.height = 6}
+plotly::ggplotly(df_marekt_info %>% 
+  filter(items %in% c("DSEX Index", "DSES Index", "DS30 Index")) %>% 
+  separate(items, into = c("index", NA), sep = " Index") %>%
+  arrange(index, Date) %>% 
+  group_by(index) %>%
+  # Rebase
+  mutate(Rebased = Actual/first(Actual)*100) %>% 
+  # Reshape
+  pivot_longer(cols = c("Actual", "Rebased"),
+               values_to = "points",
+               names_to = "index_type") %>% 
+  ggplot(aes(x = Date, y = points, col = index)) +
+  geom_line() +
+  facet_wrap(~ index_type, scale = "free", nrow = 2) +
+  theme(legend.position="top",
+        panel.spacing = unit(3, "lines")) + # extra space between rows
+  theme_minimal() +
+  labs(x = "", y ="", col = ""))
+  
+
+```
+
+
+# Trade 
+
+```{r, fig.height = 6}
+plotly::ggplotly(
+  df_marekt_info %>%
+  # fix the item name
+  mutate(items = if_else(
+    items == "Total Valuein Taka (mn)", "Total Value in Taka (mn)", items
+  )
+) %>% 
+  filter(! items %in% c("DSEX Index", "DSES Index", "DS30 Index")) %>% 
+  ggplot(aes(Date, Actual, color = items)) +
+  geom_line() +
+  facet_wrap(~ items, nrow = 3, scale = "free") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        panel.spacing = unit(2, "lines")) + # extra space between rows
+  labs(x = "", y = "")
+)
+```
+
+
+# Block Trade
+
+```{r block, fig.height = 15}
+plotly::ggplotly(readRDS("data/DF-BLOCK.RDS") %>% 
+  ggplot(aes(x = reorder(code, `Value (in millions)`),
+             y = `Value (in millions)`,
+             fill = sector,
+             label = round(`Value (in millions)`, 1))) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "",
+       fill = "Sector",
+       title = "Block Trade") +
+  geom_text(size = 2) +
+  theme(axis.text.y = element_text(size = 2)) +
+  theme_minimal())
+```

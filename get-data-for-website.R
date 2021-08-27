@@ -92,10 +92,10 @@ df_block <- mst %>%
 
 saveRDS(df_block, "data/DF-Block.RDS")
 
-
-# Gainers-Losers ----------------------------------------------------------
-
-# Gainers***
+###################
+# Gainers-Losers 
+####################
+# Gainers----
 dsex_price_today_url <- "https://www.dsebd.org/top_ten_gainer.php"
 dsex_price_today <- dsex_price_today_url %>%
   read_html() %>% 
@@ -115,7 +115,7 @@ df_gainers <- list_extracted_today[[1]] %>%
   #mutate(`% CHANGE` = as.numeric(`% CHANGE`))
 
 
-# Losers***
+# Losers----
 dsex_price_today_url <- "https://www.dsebd.org/top_ten_loser.php"
 dsex_price_today <- dsex_price_today_url %>%
   read_html() %>% 
@@ -140,4 +140,28 @@ bind_rows(df_gainers, df_losers, .id = c("id")) %>%
   inner_join(readRDS("data/sector/DF-SECTOR.RDS"), by  = "code") %>% 
   saveRDS(., "data/DF-GAINERS-LOSERS.RDS")
   
-
+#--------------------
+# Recent Market Info
+#--------------------
+# Scrap Data----
+url_market_info <- "https://www.dsebd.org/recent_market_information.php"
+market_info <- url_market_info %>%
+  rvest::read_html() %>% 
+  rvest::html_table(fill = TRUE) 
+# We need the table with 9 columns
+# See https://community.rstudio.com/t/extract-data-frame-from-a-list-with-condition/78086/2
+# Step 1: Find number of columns for each element the market_info list
+columns_market_info <- lapply(market_info, ncol)
+# Step 2: Extract the list with 9 columns
+list_market_info <- market_info[columns_market_info  == 9] # Extract the list with 7 columns
+# Step 3: Convert to dataframe
+df_market_info <- list_market_info[[1]] %>%
+  as_tibble() %>% 
+  select(-9)
+# Reshape 
+df_marekt_info <- df_market_info %>% 
+  pivot_longer(cols = -1,
+               names_to = 'items',
+               values_to = 'Actual') %>% 
+  mutate(Date = lubridate::dmy(Date))
+saveRDS(df_marekt_info, "data/df_marekt_info.RDS")
