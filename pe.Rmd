@@ -85,4 +85,8 @@ plotly::ggplotly(pe_plot("Services & Real Estate"))
 ```{r Mutual-Funds}
 plotly::ggplotly(pe_plot("Mutual Funds"))
 ```
+## Insurance
+```{r Insurance}
+plotly::ggplotly(pe_plot("Insurance"))
+```
 
