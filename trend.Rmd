@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo=FALSE, message = FALSE, warning = FALSE, fig.width = 
 
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 source("moving-averages.R")
 ```
 
