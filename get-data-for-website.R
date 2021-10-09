@@ -157,7 +157,13 @@ list_market_info <- market_info[columns_market_info  == 9] # Extract the list wi
 # Step 3: Convert to dataframe
 df_market_info <- list_market_info[[1]] %>%
   as_tibble() %>% 
-  select(-9)
+  select(-9) #remove DEGEN index
+
+# Step 4: Rename
+colnames(df_market_info)<- c("Date","Total Trade", "Total Volume",
+                             "Total Value in Taka(mn)",
+                             "Total Market Cap. in Taka(mn)",
+                             "DSEX Index", "DSES Index", "DS30 Index")
 # Reshape 
 df_marekt_info <- df_market_info %>% 
   pivot_longer(cols = -1,
