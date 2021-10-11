@@ -107,7 +107,10 @@ list_extracted_today <- dsex_price_today[dfcols_today == 7] # Extract the list w
 
 df_gainers <- list_extracted_today[[1]] %>%
   as_tibble() %>% 
-  select(-1) #%>%
+  select(-1) %>% 
+  mutate(across(where(is.character) & !`TRADING CODE`, # column position also works
+                parse_number))
+  #%>%
   #Check which vars should not change ***
   #Then parse number
   #mutate(across(- c(`TRADING CODE`,  `% CHANGE`), parse_number)) %>% 
@@ -127,7 +130,9 @@ list_extracted_today <- dsex_price_today[dfcols_today == 7] # Extract the list w
 
 df_losers <- list_extracted_today[[1]] %>%
   as_tibble() %>% 
-  select(-1) #%>%
+  select(-1) %>% 
+  mutate(across(where(is.character) & !`TRADING CODE`, # column position also works
+                parse_number))
 #Check which vars should not change ***
 #Then parse number
 #mutate(across(- c(`TRADING CODE`,  `% CHANGE`), parse_number)) %>% 
